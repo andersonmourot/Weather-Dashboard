@@ -98,53 +98,80 @@ function init() {
 }
 
 function append(search) {
-    if (history.indexOf(search) !== -1) {
-        return;
-    } history.push(search);
+  if (history.indexOf(search) !== -1) {
+    return;
+  }
+  history.push(search);
 
-    localStorage.setItem('search-history', JSON.stringify(history));
-    render();
+  localStorage.setItem("search-history", JSON.stringify(history));
+  render();
 }
 
-function forecast(forecast, timezone) {
-    
-    //All Variabes for this function scope
-    var iUrl = `https://openweathermap.org/img/w/${forecast.weather[0].icon}.png`;
-    var iDesc = forecast.weather[0].description;
-    var { humid } = forecast;
-    var mph = forecast.wind_speed;
-    var temperature = forecast.temp.day;
-    var unixTs = forecast.dt;
-    var body = document.createElement('div');
-    var title = document.createElement('h5');
-    var humEl = document.createElement('p');
-    var wind = document.createElement('p');
-    var tempElement = document.createElement('p');
-    var card = document.createElement('div');
-    var col = document.createElement('div');
-    var icon = document.createElement('img');
+function forecastCard(forecast, timezone) {
+  //All Variabes for this function scope
+  var iUrl = `https://openweathermap.org/img/w/${forecast.weather[0].icon}.png`;
+  var iDesc = forecast.weather[0].description;
+  var { humid } = forecast;
+  var mph = forecast.wind_speed;
+  var temperature = forecast.temp.day;
+  var unixTs = forecast.dt;
+  var body = document.createElement("div");
+  var title = document.createElement("h5");
+  var humEl = document.createElement("p");
+  var wind = document.createElement("p");
+  var tempElement = document.createElement("p");
+  var card = document.createElement("div");
+  var col = document.createElement("div");
+  var icon = document.createElement("img");
 
-    col.append(card);
-    card.append(body);
-    body.append(title, icon, tempElement, wind, humEl);
+  col.append(card);
+  card.append(body);
+  body.append(title, icon, tempElement, wind, humEl);
 
-    tempElement.setAttribute('class', 'card-text');
-    wind.setAttribute('class', 'card-text');
-    title.setAttribute('class', 'card-title');
-    card.setAttribute('class', 'card bg primary h-100 text-white');
-    body.setAttribute('class', 'card-body p-2');
-    humEl.setAttribute('class', 'card-text');
-    col.setAttribute('class', 'col-md');
-    col.classList.add('five-day-card');
+  tempElement.setAttribute("class", "card-text");
+  wind.setAttribute("class", "card-text");
+  title.setAttribute("class", "card-title");
+  card.setAttribute("class", "card bg primary h-100 text-white");
+  body.setAttribute("class", "card-body p-2");
+  humEl.setAttribute("class", "card-text");
+  col.setAttribute("class", "col-md");
+  col.classList.add("five-day-card");
 
-    humEl.textContent = `Humidity: ${humid} %`;
-    wind.textContent = `Wind: ${mph} MPH`;
-    tempElement.textContent = `Temp: ${temperature} °F`;
-    title.textContent = dayjs.unix(unixTs).tz(timezone).format('M/D/YYYY');
-    icon.setAttribute('src', iUrl);
-    icon.setAttribute('alt', iDesc);
+  humEl.textContent = `Humidity: ${humid} %`;
+  wind.textContent = `Wind: ${mph} MPH`;
+  tempElement.textContent = `Temp: ${temperature} °F`;
+  title.textContent = dayjs.unix(unixTs).tz(timezone).format("M/D/YYYY");
+  icon.setAttribute("src", iUrl);
+  icon.setAttribute("alt", iDesc);
 
-    forecast.append(col);
+  forecast.append(col);
 }
+
+// Function to get the forecast of a certain location
+function forecast(dailyForecast, timezone) {
+  var start = dayjs().tz(timezone).add(1, "day").startOf("day").unix();
+  var end = dayjs().tz(timezone).add(6, "day").startOf("day").unix();
+  var header = document.createElement("h4");
+  var heading = document.createElement("div");
+
+  header.textContent = "5-Day Forecast";
+  heading.setAttribute("class", "col-12");
+  heading.append(heading);
+
+  forecast.innerHTML = "";
+  forecast.append(heading);
+  for (var i = 0; i < dailyForecast.length; i++) {
+    if (dailyForecast[i].dt >= start && dailyForecast[i].dt < end) {
+      forecastCard(dailyForecast[i], timezone);
+    }
+  }
+}
+
+
+
+
+
+
+
 
 init();
