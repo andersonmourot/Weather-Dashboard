@@ -107,6 +107,11 @@ function append(search) {
   render();
 }
 
+function dataRender(city, data) {
+    currentWeather(city, data.current, data.timezone);
+    forecast(data.daily, data.timezone);
+}
+
 function forecastCard(forecast, timezone) {
   //All Variabes for this function scope
   var iUrl = `https://openweathermap.org/img/w/${forecast.weather[0].icon}.png`;
@@ -167,11 +172,65 @@ function forecast(dailyForecast, timezone) {
   }
 }
 
+//Function to get the weather for a location 
+function weather(location) {
+    var {lon} = location;
+    var {lat} = location;
+    var city = location.name;
+    var APIurl = `${url}/data/2.5/onecall?lat=${lat}&lon=${lon}&units=imperial&exclude=minutely,hourly&appid=${key}`;
 
+    fetch(APIurl)
+        .then(function(res) {
+            return res.json();
+        })
+        .then(function(data) {
+            dataRender(city, data);
+        })
+        .catch(function(err) {
+            console.error(err);
+        })
+}
 
+function coordinates(search) {
+  var APIurl = `${url}/geo/1.0/direct?q=${search}&limit=5&appid=${key}`;
 
+  fetch(APIurl)
+    .then(function (res) {
+      return res.json();
+    })
+    .then(function (data) {
+      if (!data[0]) {
+        alert("Location not found");
+      } else {
+        appendToHistory(search);
+        weather(data[0]);
+      }
+    })
+    .catch(function (err) {
+      console.error(err);
+    });
+}
 
+function click(e) {
+  if (!e.target.matches(".btn-history")) {
+    return;
+  }
+  var btn = e.target;
+  var search = btn.getAttribute("data-search");
+  coordinates(search);
+}
 
-
+//Form for submission
+function submit(e) {
+    if (!input.value) {
+        return;
+    }
+    e.preventDefault();
+    var search = input.value.trim();
+    coordinates(search);
+    input.value = '';
+}
 
 init();
+searchHistory.addEventListener('click', click);
+form.addEventListener('submit', submit); 
