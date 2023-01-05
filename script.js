@@ -4,7 +4,7 @@ var form = document.querySelector("#search-form");
 var history = [];
 var searchHistory = document.querySelector("#history");
 var url = "https://api.openweathermap.org";
-var forcast = document.querySelector("#forecast");
+var forecast = document.querySelector("#forecast");
 var key = "d91f911bcf2c0f925fb6535547a5ddc9";
 var today = document.querySelector("#today");
 
@@ -21,7 +21,7 @@ function currentWeather(city, weather, timezone) {
   var mph = weather.wind_speed;
   var humid = weather.humidity;
   var description = weather.weather[0].description || weather[0].main;
-  var iUrl = "https://openweathermap.org/img/w/${weather.weather[0].icon}.png";
+  var iUrl = `https://openweathermap.org/img/w/${weather.weather[0].icon}.png`;
   var wIcon = document.createElement("img");
   var header = document.createElement("h2");
   var humEl = document.createElement("p");
@@ -105,3 +105,46 @@ function append(search) {
     localStorage.setItem('search-history', JSON.stringify(history));
     render();
 }
+
+function forecast(forecast, timezone) {
+    
+    //All Variabes for this function scope
+    var iUrl = `https://openweathermap.org/img/w/${forecast.weather[0].icon}.png`;
+    var iDesc = forecast.weather[0].description;
+    var { humid } = forecast;
+    var mph = forecast.wind_speed;
+    var temperature = forecast.temp.day;
+    var unixTs = forecast.dt;
+    var body = document.createElement('div');
+    var title = document.createElement('h5');
+    var humEl = document.createElement('p');
+    var wind = document.createElement('p');
+    var tempElement = document.createElement('p');
+    var card = document.createElement('div');
+    var col = document.createElement('div');
+    var icon = document.createElement('img');
+
+    col.append(card);
+    card.append(body);
+    body.append(title, icon, tempElement, wind, humEl);
+
+    tempElement.setAttribute('class', 'card-text');
+    wind.setAttribute('class', 'card-text');
+    title.setAttribute('class', 'card-title');
+    card.setAttribute('class', 'card bg primary h-100 text-white');
+    body.setAttribute('class', 'card-body p-2');
+    humEl.setAttribute('class', 'card-text');
+    col.setAttribute('class', 'col-md');
+    col.classList.add('five-day-card');
+
+    humEl.textContent = `Humidity: ${humid} %`;
+    wind.textContent = `Wind: ${mph} MPH`;
+    tempElement.textContent = `Temp: ${temperature} °F`;
+    title.textContent = dayjs.unix(unixTs).tz(timezone).format('M/D/YYYY');
+    icon.setAttribute('src', iUrl);
+    icon.setAttribute('alt', iDesc);
+
+    forecast.append(col);
+}
+
+init();
