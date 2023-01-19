@@ -3,7 +3,7 @@ var input = document.querySelector("#search-input");
 var form = document.querySelector("#search-form");
 var history = [];
 var searchHistory = document.querySelector("#history");
-var url = "https://api.openweathermap.org";
+var weatherAPIURL = "https://api.openweathermap.org";
 var forecast = document.querySelector("#forecast");
 var key = "d91f911bcf2c0f925fb6535547a5ddc9";
 var today = document.querySelector("#today");
@@ -14,7 +14,7 @@ dayjs.extend(window.dayjs_plugin_timezone);
 
 function currentWeather(city, weather, timezone) {
   var date = dayjs().tz(timezone).format("M/D/YYYY");
-
+    console.log(weather.temp)
   //Variables for API data
   var temperature = weather.temp;
   var uvi = weather.uvi;
@@ -97,7 +97,8 @@ function init() {
   render();
 }
 
-function append(search) {
+function appendHist(search) {
+  var history = [];
   if (history.indexOf(search) !== -1) {
     return;
   }
@@ -108,8 +109,8 @@ function append(search) {
 }
 
 function dataRender(city, data) {
-    currentWeather(city, data.current, data.timezone);
-    forecast(data.daily, data.timezone);
+  currentWeather(city, data.current, data.timezone);
+  forecast(data.daily, data.timezone);
 }
 
 function forecastCard(forecast, timezone) {
@@ -172,29 +173,29 @@ function forecast(dailyForecast, timezone) {
   }
 }
 
-//Function to get the weather for a location 
+//Function to get the weather for a location
 function weather(location) {
-    var {lon} = location;
-    var {lat} = location;
-    var city = location.name;
-    var APIurl = `${url}/data/2.5/onecall?lat=${lat}&lon=${lon}&units=imperial&exclude=minutely,hourly&appid=${key}`;
+  var { lon } = location;
+  var { lat } = location;
+  var city = location.name;
+  var forecasturl = `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&units=imperial&exclude=minutely,hourly&appid=${key}`;
 
-    fetch(APIurl)
-        .then(function(res) {
-            return res.json();
-        })
-        .then(function(data) {
-            dataRender(city, data);
-        })
-        .catch(function(err) {
-            console.error(err);
-        })
+  fetch(forecasturl)
+    .then(function (res) {
+      return res.json();
+    })
+    .then(function (data) {
+      dataRender(city, data);
+    })
+    .catch(function (err) {
+      console.error(err);
+    });
 }
 
 function coordinates(search) {
-  var APIurl = `${url}/geo/1.0/direct?q=${search}&limit=5&appid=${key}`;
+  var forecasturl = `https://api.openweathermap.org/geo/1.0/direct?q=${search}&limit=5&appid=${key}`;
 
-  fetch(APIurl)
+  fetch(forecasturl)
     .then(function (res) {
       return res.json();
     })
@@ -202,7 +203,7 @@ function coordinates(search) {
       if (!data[0]) {
         alert("Location not found");
       } else {
-        appendToHistory(search);
+        appendHist(search);
         weather(data[0]);
       }
     })
@@ -222,15 +223,15 @@ function click(e) {
 
 //Form for submission
 function submit(e) {
-    if (!input.value) {
-        return;
-    }
-    e.preventDefault();
-    var search = input.value.trim();
-    coordinates(search);
-    input.value = '';
+  if (!input.value) {
+    return;
+  }
+  e.preventDefault();
+  var search = input.value.trim();
+  coordinates(search);
+  input.value = "";
 }
 
 init();
-searchHistory.addEventListener('click', click);
-form.addEventListener('submit', submit); 
+searchHistory.addEventListener("click", click);
+form.addEventListener("submit", submit);
